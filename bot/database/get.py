@@ -31,5 +31,5 @@ def get_teams(league) -> dict:
     team_info: TeamInfoResponse = parse_response(resp, TeamInfoResponse)
     teams = [el for el in team_info.result]
     for team in teams:
-        tmp_dict[team.id] = team.name
+        tmp_dict[team.name] = team.id
     return tmp_dict

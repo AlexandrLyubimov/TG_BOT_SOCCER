@@ -26,9 +26,9 @@ keyboard_2.row('Отменить ❌')
 
 def get_keywords(liga: str):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    # id_league = DICT_LEAGUE.get(liga)
-    # ar = list(DICT_TEAM.get(id_league).values())
-    ar = list(DICT_TEAM.get(DICT_LEAGUE.get(liga)).values())
+    # ar = list(DICT_TEAM.get(DICT_LEAGUE.get(liga)).values())
+    id_league = DICT_LEAGUE.get(liga)
+    ar = list(DICT_TEAM.get(id_league).keys())
 
     row_size = 4
     for iter in range(0, len(ar), row_size):

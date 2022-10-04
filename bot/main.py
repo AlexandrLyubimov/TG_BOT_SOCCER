@@ -83,6 +83,11 @@ async def send_handler(message: types.Message, state: FSMContext):
     if message.text == "Отправить":
         async with state.proxy() as data:
             await message.answer(data)
+            league_name = data["league_state"]
+            team_home_name = data["team_h"]
+            team_guest_name = data["team_g"]
+            id_team_h = DICT_TEAM.get(DICT_LEAGUE.get(league_name)).get(team_home_name)
+            id_team_g = DICT_TEAM.get(DICT_LEAGUE.get(league_name)).get(team_guest_name)
         await state.finish()
         await message.reply('Отправлено', reply_markup=keyboard_1)
     else:
