@@ -5,6 +5,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from bot.database.get import result_info_team
+from bot.database.post import add_user
 from bot.reference_info import teams
 from config import TELEGRAM_TOKEN
 from bot.keyboards import *
@@ -29,6 +30,8 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     if current_state is not None:
         await state.finish()
+    add_user(message.from_user.id)
+    # await message.answer(f"Ваш ID: {message.from_user.id}")
     await message.answer('<b>Добро пожаловать!</b>\n' + '\n' + '<b>ЛИГУ --> КОМАНДЫ --> РЕЗУЛЬТАТ.</b>\n',
                          reply_markup=keyboard_1)
 

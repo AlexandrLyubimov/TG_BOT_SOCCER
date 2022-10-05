@@ -15,6 +15,7 @@ try:
     SERVER_API_URL_LEAGUE = config.get('SERVER_API', 'URL_GET_LEAGUE')
     SERVER_API_URL_TEAM = config.get('SERVER_API', 'URL_GET_TEAM')
     SERVER_API_URL_RESULT = config.get('SERVER_API', 'URL_GET_RESULT')
+    SERVER_API_URL_ADD_USER = config.get('SERVER_API', 'URL_ADD_USER')
     SERVER_API_TOKEN = config.get('SERVER_API', 'TOKEN')
 except configparser.ConfigParser.NoOptionError:
     print('could not read configuration file')
