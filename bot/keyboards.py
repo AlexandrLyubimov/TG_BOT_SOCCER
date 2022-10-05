@@ -1,5 +1,4 @@
 from aiogram import types
-from aiogram.types import KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
 from bot.database.get import leagues
 from bot.reference_info import DICT_TEAM, DICT_LEAGUE

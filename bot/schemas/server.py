@@ -23,3 +23,21 @@ class TeamInfo(BaseModel):
 
 class TeamInfoResponse(BaseResponse):
     result: list[TeamInfo]
+
+
+class IndicatorInfo(BaseModel):
+    value: float
+    team_home: float
+    team_guest: float
+
+
+class Indicator(BaseModel):
+    score: IndicatorInfo
+    corners: IndicatorInfo
+    fouls: IndicatorInfo
+    offsides: IndicatorInfo
+    cards: IndicatorInfo
+
+
+class ResultInfoResponse(BaseResponse):
+    result: Indicator
