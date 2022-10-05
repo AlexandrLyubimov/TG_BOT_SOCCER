@@ -9,7 +9,6 @@ from bot.reference_info import teams
 from config import TELEGRAM_TOKEN
 from bot.keyboards import *
 
-
 leagues = [league.name for league in leagues]
 
 
@@ -44,7 +43,6 @@ async def cm_start(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['league_state'] = message.text
         await FSMAdmin.next()
-        # await message.answer(data)
         await message.answer('1.Выберите команду, которая играет дома:', reply_markup=get_keywords(message.text))
 
 
@@ -66,8 +64,8 @@ async def load_team_1(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['team_h'] = message.text
         await FSMAdmin.next()
-        # await message.answer(data)
-        await message.answer("2.Выберите команду, которая играет в гостях:", reply_markup=get_keywords(data['league_state']))
+        await message.answer("2.Выберите команду, которая играет в гостях:",
+                             reply_markup=get_keywords(data['league_state']))
 
 
 # Ловим ответ
@@ -79,7 +77,6 @@ async def load_team_2(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['team_g'] = message.text
         await FSMAdmin.next()
-        # await message.answer(data)
         await message.answer("Если все верно, нажмите кнопку [Отправить]:", reply_markup=keyboard_2)
 
 
@@ -87,28 +84,28 @@ async def load_team_2(message: types.Message, state: FSMContext):
 async def send_handler(message: types.Message, state: FSMContext):
     if message.text == "Отправить":
         async with state.proxy() as data:
-            # await message.answer(data)
             league_name = data["league_state"]
             team_home_name = data["team_h"]
             team_guest_name = data["team_g"]
             id_team_h: int = DICT_TEAM.get(DICT_LEAGUE.get(league_name)).get(team_home_name)
             id_team_g: int = DICT_TEAM.get(DICT_LEAGUE.get(league_name)).get(team_guest_name)
             if id_team_h == id_team_g:
-                await message.answer("<b>Расчёт не произведен, так как вы выбрали одинаковые команды!</b>", reply_markup=keyboard_1)
+                await message.answer("<b>Расчёт не произведен, так как вы выбрали одинаковые команды!</b>",
+                                     reply_markup=keyboard_1)
             else:
                 result_info = result_info_team(id_team_h, id_team_g)
                 await message.answer(f"<b>Прогнозируемый тотал матча: {result_info.result.score.value}</b>\n" +
-                             "Ср. кол-во голов по статистике: \n" +
-                             f"{team_home_name} (дома) = <b>{result_info.result.score.team_home}</b>\n" +
-                             f"{team_guest_name} (в гостях) = <b>{result_info.result.score.team_guest}</b>\n" + "\n" +
-                             f"<b>Прогнозируемый тотал угловых: {result_info.result.corners.value}</b>\n" +
-                             "ИТ1: <b>{}</b>\n".format(result_info.result.corners.team_home) +
-                             "ИТ2: <b>{}</b>\n".format(result_info.result.corners.team_guest) + "\n" +
-                             "<b>Прогнозируемые тоталы: </b>\n" +
-                             "фолов = <b>{}</b>\n".format(result_info.result.fouls.value) +
-                             "офсайдов = <b>{}</b>\n".format(result_info.result.offsides.value) +
-                             "желтых карточек = <b>{}</b>\n".format(result_info.result.cards.value),
-                                                                    reply_markup=keyboard_1)
+                                     "Ср. кол-во голов по статистике: \n" +
+                                     f"{team_home_name} (дома) = <b>{result_info.result.score.team_home}</b>\n" +
+                                     f"{team_guest_name} (в гостях) = <b>{result_info.result.score.team_guest}</b>\n" + "\n" +
+                                     f"<b>Прогнозируемый тотал угловых: {result_info.result.corners.value}</b>\n" +
+                                     "ИТ1: <b>{}</b>\n".format(result_info.result.corners.team_home) +
+                                     "ИТ2: <b>{}</b>\n".format(result_info.result.corners.team_guest) + "\n" +
+                                     "<b>Прогнозируемые тоталы: </b>\n" +
+                                     "фолов = <b>{}</b>\n".format(result_info.result.fouls.value) +
+                                     "офсайдов = <b>{}</b>\n".format(result_info.result.offsides.value) +
+                                     "желтых карточек = <b>{}</b>\n".format(result_info.result.cards.value),
+                                     reply_markup=keyboard_1)
             await state.finish()
     else:
         await message.answer("Используйте кнопки")
