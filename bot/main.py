@@ -27,35 +27,43 @@ dp = Dispatcher(bot, storage=storage)
 
 @dp.message_handler(commands='start', state='*')
 async def cmd_start(message: types.Message, state: FSMContext) -> None:
-    current_state = await state.get_state()
-    if current_state is not None:
-        await state.finish()
+    await FSMAdmin.league_state.set()
     add_user(message.from_user.id)
-    # await message.answer(f"Ваш ID: {message.from_user.id}")
     await message.answer('<b>Добро пожаловать!</b>\n' + '\n' + '<b>ЛИГУ --> КОМАНДЫ --> РЕЗУЛЬТАТ.</b>\n',
                          reply_markup=keyboard_1)
 
 
-@dp.message_handler(Text, state=None)
-async def cm_start(message: types.Message, state: FSMContext):
+@dp.message_handler(Text(equals='Отменить ❌', ignore_case=True), state='*')
+async def cancel_handler(message: types.Message, state: FSMContext):
     await FSMAdmin.league_state.set()
+    await message.reply("Выберите лигу из списка", reply_markup=keyboard_1)
+
+
+@dp.message_handler(Text(equals='Назад ◀', ignore_case=True), state='*')
+async def cancel_handler(message: types.Message, state: FSMContext):
+    await FSMAdmin.previous()
+    async with state.proxy() as data:
+        league_name = data["league_state"]
+    current_state = await state.get_state()
+    if current_state == "FSMAdmin:team_h":
+        await message.answer('1.Выберите команду, которая играет дома:',
+                             reply_markup=get_keywords(league_name))
+    elif current_state == "FSMAdmin:team_g":
+        await message.answer('2.Выберите команду, которая играет в гостях:',
+                             reply_markup=get_keywords(league_name))
+    elif current_state == "FSMAdmin:league_state":
+        await message.answer("Выберите лигу из списка", reply_markup=keyboard_1)
+
+
+@dp.message_handler(Text, state=FSMAdmin.league_state)
+async def cm_start(message: types.Message, state: FSMContext):
     if message.text not in leagues:
-        await message.answer("Выберите лигу из списка")
-        await state.finish()
+        await message.answer("Выберите лигу из списка, используйте кнопки!", reply_markup=keyboard_1)
     else:
         async with state.proxy() as data:
             data['league_state'] = message.text
         await FSMAdmin.next()
         await message.answer('1.Выберите команду, которая играет дома:', reply_markup=get_keywords(message.text))
-
-
-@dp.message_handler(Text(equals='Отменить ❌', ignore_case=True), state='*')
-async def cancel_handler(message: types.Message, state: FSMContext):
-    current_state = await state.get_state()
-    if current_state is None:
-        return
-    await state.finish()
-    await message.reply("Выберите лигу из списка", reply_markup=keyboard_1)
 
 
 # Ловим ответ от пользователя и пишем в словарь
@@ -85,16 +93,17 @@ async def load_team_2(message: types.Message, state: FSMContext):
 
 @dp.message_handler(Text, state=FSMAdmin.condition)
 async def send_handler(message: types.Message, state: FSMContext):
-    if message.text == "Отправить":
+    if message.text == "Отправить 📨":
         async with state.proxy() as data:
             league_name = data["league_state"]
             team_home_name = data["team_h"]
             team_guest_name = data["team_g"]
             id_team_h: int = DICT_TEAM.get(DICT_LEAGUE.get(league_name)).get(team_home_name)
             id_team_g: int = DICT_TEAM.get(DICT_LEAGUE.get(league_name)).get(team_guest_name)
-            if id_team_h == id_team_g:
-                await message.answer("<b>Расчёт не произведен, так как вы выбрали одинаковые команды!</b>",
-                                     reply_markup=keyboard_1)
+            if id_team_h is None or id_team_g is None:
+                await message.answer("<b>Расчёт не произведен, выбраны команды из разных Лиг!</b>")
+            elif id_team_h == id_team_g:
+                await message.answer("<b>Расчёт не произведен, выбраны одинаковые команды!</b>")
             else:
                 result_info = result_info_team(id_team_h, id_team_g)
                 await message.answer(f"<b>Прогнозируемый тотал матча: {result_info.result.score.value}</b>\n" +
@@ -107,8 +116,8 @@ async def send_handler(message: types.Message, state: FSMContext):
                                      "<b>Прогнозируемые тоталы: </b>\n" +
                                      "фолов = <b>{}</b>\n".format(result_info.result.fouls.value) +
                                      "офсайдов = <b>{}</b>\n".format(result_info.result.offsides.value) +
-                                     "желтых карточек = <b>{}</b>\n".format(result_info.result.cards.value),
-                                     reply_markup=keyboard_1)
-            await state.finish()
+                                     "желтых карточек = <b>{}</b>\n".format(result_info.result.cards.value))
+            await message.answer("Продолжим? Выберите лигу из списка.", reply_markup=keyboard_1)
+            await FSMAdmin.league_state.set()
     else:
         await message.answer("Используйте кнопки")

@@ -19,7 +19,8 @@ for el in leagues:
 #     inline_kb1.add(inline_btn_league)
 
 keyboard_2 = types.ReplyKeyboardMarkup(resize_keyboard=True)
-keyboard_2.row('Отправить')
+keyboard_2.row('Отправить 📨')
+keyboard_2.row('Назад ◀')
 keyboard_2.row('Отменить ❌')
 
 
@@ -32,9 +33,8 @@ def get_keywords(liga: str):
     row_size = 4
     for iter in range(0, len(ar), row_size):
         keyboard.row(*ar[iter:iter + row_size])
-    keyboard.row('Отменить ❌')
+    keyboard.row('Назад ◀', 'Отменить ❌')
     return keyboard
-
 
 # keyboard8 = types.ReplyKeyboardMarkup(resize_keyboard=True)
 # keyboard8.row('Купить недельную подписку')
